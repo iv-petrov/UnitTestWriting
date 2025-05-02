@@ -46,7 +46,7 @@ public sealed class Cart
     /// <param name="purchasedAt">Дата покупки</param>
     public int GetFullDiscount(DateTime purchasedAt)
     {
-        var discount = Discount ?? 0 + PromoCode?.Discount ?? 0;
+        var discount = (Discount ?? 0) + (PromoCode?.Discount ?? 0);
 
         var birthDate = Customer.BirthDate;
         var birthDateDiscount = purchasedAt.Day == birthDate.Day && purchasedAt.Month == birthDate.Month ? 5 : 0;
@@ -70,7 +70,10 @@ public sealed class Cart
         if (discount == 0)
             return price;
 
-        return price * discount / 100;
+        if (price > 0)
+            return Math.Max(price * (100 - discount) / 100, 1);
+
+        return price;
     }
 
     /// <summary>
@@ -85,8 +88,10 @@ public sealed class Cart
 
         if (_products.Any(p => p.Product.Id == product.Id))
         {
-            var alreadyAdded = _products.Single(p => p.Product.Id == product.Id);
-            alreadyAdded.Amount += amount;
+            int alreadyAdded = _products.FindIndex(p => p.Product.Id == product.Id);
+            int newAmount = _products[alreadyAdded].Amount + amount;
+            var oldProduct = _products[alreadyAdded].Product;
+            _products[alreadyAdded] = (oldProduct, newAmount);
         }
         else
         {
@@ -103,7 +108,7 @@ public sealed class Cart
         if (Discount.HasValue)
             throw new Exception("Скидка уже применена");
 
-        if (discount is >= 100 or <= 0)
+        if (discount is >= 100 or < 0)
             throw new ArgumentOutOfRangeException(nameof(discount));
 
         var fullDiscount = discount + PromoCode?.Discount ?? 0;
@@ -123,7 +128,7 @@ public sealed class Cart
         if (PromoCode is not null)
             throw new Exception("Промокод уже применён");
 
-        var fullDiscount = Discount ?? 0 + promoCode.Discount;
+        var fullDiscount = (Discount ?? 0) + promoCode.Discount;
 
         if (fullDiscount >= 100)
             throw new ArgumentException("Общая скидка не может быть больше 100%");
