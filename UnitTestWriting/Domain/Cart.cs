@@ -70,7 +70,10 @@ public sealed class Cart
         if (discount == 0)
             return price;
 
-        return price * (100 - discount) / 100;
+        if (price > 0)
+            return Math.Max(price * (100 - discount) / 100, 1);
+
+        return price;
     }
 
     /// <summary>

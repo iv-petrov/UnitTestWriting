@@ -37,7 +37,7 @@ namespace UnitTestWriting.Tests.Domain
         [InlineData(10, 10, 1, 3, 1, 3, 25)]
         [InlineData(50, 44, 1, 3, 1, 3, 99)]
         [InlineData(50, 45, 1, 1, 1, 3, 95)]
-        [InlineData(50, 46, 1, 1, 1, 3, 96)]
+        [InlineData(50, 46, 1, 3, 1, 3, 96)]
         public void GetFullDiscount_ByDiscountPromocodeAndClientBirthDate_ReturnsFullDiscount(
             int? discount,
             int? promocodeDiscount,
@@ -116,10 +116,10 @@ namespace UnitTestWriting.Tests.Domain
 
 
         [Theory]
-        [InlineData(0, 100)]
-        [InlineData(9, 91)]
-        [InlineData(10, 90)]
-        [InlineData(11, 89)]
+        [InlineData(1, 9)]
+        [InlineData(9, 9)]
+        [InlineData(10, 9)]
+        [InlineData(11, 8)]
         [InlineData(99, 1)]
         public void GetFullPrice_FractionalDiscount_ReturnsFlooredDiscountedPrice(
             int discount,
@@ -128,7 +128,7 @@ namespace UnitTestWriting.Tests.Domain
 
             // Arrange
             var cart = new Cart(new User());
-            cart.AddProduct(new Product() { Price = 100 }, 1);
+            cart.AddProduct(new Product() { Price = 10 }, 1);
             cart.ApplyDiscount(discount);
 
             // Act
